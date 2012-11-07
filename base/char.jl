@@ -24,6 +24,8 @@ function safe_char(x)
     return c
 end
 
+const replacement_char = '\ufffd'
+
 integer(x::Char) = int32(x)
 unsigned(x::Char) = uint32(x)
 

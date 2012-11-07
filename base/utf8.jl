@@ -33,11 +33,11 @@ strlen(s::UTF8String) = ccall(:u8_strlen, Int, (Ptr{Uint8},), s.data)
 
 function next(s::UTF8String, i::Int)
     if !is_utf8_start(s.data[i])
-        error("invalid UTF-8 character index")
+        return replacement_char, i+1
     end
     trailing = _jl_utf8_trailing[s.data[i]+1]
     if length(s.data) < i + trailing
-        error("premature end of UTF-8 data")
+        return replacement_char, i+1
     end
     c::Uint32 = 0
     for j = 1:trailing

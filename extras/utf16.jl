@@ -26,8 +26,11 @@ function next(s::UTF16String, i::Int)
     elseif length(s.data) > i && utf16_is_lead(s.data[i]) && utf16_is_trail(s.data[i+1])
         return utf16_get_supplementary(s.data[i], s.data[i+1]), i+2
     end
-    error("invalid UTF-16 character index")
+    replacement_char, i+1
 end
+
+isvalid(s::UTF16String, i::Integer) =
+    (1 <= i <= length(s.data)) && !utf16_is_trail(s.data[i])
 
 function encode16(s::String)
     buf = Array(Uint16, length(s))

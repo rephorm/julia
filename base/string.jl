@@ -91,14 +91,6 @@ function strlen(s::String)
 end
 
 isvalid(s::DirectIndexString, i::Integer) = (start(s) <= i <= length(s))
-function isvalid(s::String, i::Integer)
-    try
-        next(s,i)
-        true
-    catch
-        false
-    end
-end
 
 prevind(s::DirectIndexString, i::Integer) = i-1
 thisind(s::DirectIndexString, i::Integer) = i
@@ -310,6 +302,7 @@ end
 
 length(s::GenericString) = length(s.string)
 next(s::GenericString, i::Int) = next(s.string, i)
+isvalid(s::GenericString, i::Integer) = isvalid(s.string, i)
 
 ## plain old character arrays ##
 
@@ -348,6 +341,13 @@ function next(s::SubString, i::Int)
     c, i-s.offset
 end
 
+function isvalid(s::SubString, i::Integer)
+    if i < 1 || i > s.length
+        error(BoundsError)
+    end
+    isvalid(s.string, i+s.offset)
+end
+
 length(s::SubString) = s.length
 # TODO: strlen(s::SubString) = ??
 # default implementation will work but it's slow
@@ -378,6 +378,14 @@ function next(s::RepString, i::Int)
     j = mod1(i,length(s.string))
     c, k = next(s.string, j)
     c, k-j+i
+end
+
+function isvalid(s::RepString, i::Integer)
+    if i < 1 || i > length(s)
+        error(BoundsError)
+    end
+    j = mod1(i,length(s.string))
+    isvalid(s.string, j)
 end
 
 function repeat(s::String, r::Integer)
